@@ -1,6 +1,7 @@
 package com.example.tagcloud.interactive.activity
 
 //import com.example.tagcloud.shape.StarShape
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.MultiAutoCompleteTextView
@@ -11,6 +12,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,29 +44,51 @@ class StarsActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
         TagCloudTheme {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colors.background
-            ) {
-                Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(text = "Оцените статью", color = MaterialTheme.colors.primary)
-                    Row(
-                        modifier = Modifier.fillMaxHeight(),
-
-                        horizontalArrangement = Arrangement.Center
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                            finish()
+                        },
+                        backgroundColor = MaterialTheme.colors.primary,
                     ) {
-                        StarGroup()
+                        Icon(Icons.Filled.Home, contentDescription = "Home")
                     }
-                }
+                },
+                // Defaults to false
+                isFloatingActionButtonDocked = true
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = "Оцените статью", color = MaterialTheme.colors.primary)
+                        Row(
+                            modifier = Modifier.fillMaxHeight(),
 
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            StarGroup()
+                        }
+                    }
+
+                }
             }
+
         }
     }
+
     @Composable
-    fun StarGroup(){
+    fun StarGroup() {
         val rate = remember { mutableStateOf(0) }
         Star(1, rate)
         Star(2, rate)
@@ -71,6 +96,7 @@ class StarsActivity : ComponentActivity() {
         Star(4, rate)
         Star(5, rate)
     }
+
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Star(index: Int, rate: MutableState<Int>) {

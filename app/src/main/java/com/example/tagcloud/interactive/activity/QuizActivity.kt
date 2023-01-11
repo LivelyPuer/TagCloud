@@ -13,10 +13,14 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.SnackbarDefaults.backgroundColor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -41,34 +45,56 @@ class QuizActivity : ComponentActivity() {
         }
     }
 
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
         TagCloudTheme {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colors.background
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {
+                            finish()
+                        },
+                        backgroundColor = MaterialTheme.colors.primary,
+                    ) {
+                        Icon(Icons.Filled.Home, contentDescription = "Home")
+                    }
+                },
+                // Defaults to false
+                isFloatingActionButtonDocked = true
             ) {
-                LazyColumn(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(start = 30.dp, end = 30.dp)
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
                 ) {
-                    item {
-                        Interview(
-                            InterviewData(
-                                "Топ опрос 1", listOf(
-                                    Pair("Вопрос 1", listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")),
-                                    Pair("Вопрос 2", listOf("Ответ 1", "Ответ 2", "Ответ 3")),
-                                    Pair("Вопрос 3", listOf("Ответ 1", "Ответ 2")),
-                                    Pair("Вопрос 4", listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")),
-                                ), mutableListOf(
-                                    mutableListOf(1, 2, 3, 4),
-                                    mutableListOf(1, 2, 3),
-                                    mutableListOf(1, 2),
-                                    mutableListOf(1, 2, 3, 4),
+                    LazyColumn(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(start = 30.dp, end = 30.dp)
+                    ) {
+                        item {
+                            Interview(
+                                InterviewData(
+                                    "Топ опрос 1", listOf(
+                                        Pair(
+                                            "Вопрос 1",
+                                            listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
+                                        ),
+                                        Pair("Вопрос 2", listOf("Ответ 1", "Ответ 2", "Ответ 3")),
+                                        Pair("Вопрос 3", listOf("Ответ 1", "Ответ 2")),
+                                        Pair(
+                                            "Вопрос 4",
+                                            listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
+                                        ),
+                                    ), mutableListOf(
+                                        mutableListOf(1, 2, 3, 4),
+                                        mutableListOf(1, 2, 3),
+                                        mutableListOf(1, 2),
+                                        mutableListOf(1, 2, 3, 4),
+                                    )
                                 )
                             )
-                        )
+                        }
                     }
                 }
             }
@@ -159,32 +185,39 @@ class QuizActivity : ComponentActivity() {
                 animationSpec = tween(500)
             )
         }
-        Card(
-            enabled = !answered[questionIndex],
-            modifier = Modifier
+        rememberRipple(color = Color.Green)
+        Card({
+            if (!answered[questionIndex]) {
+                fieldBoolean.value = index
+                answered[questionIndex] = true
+                interview.addVote(questionIndex, index)
+                Log.d("DUBUGMSG", answered.toString())
+            }
+        },
+            Modifier
                 .fillMaxWidth()
                 .defaultMinSize(minHeight = 40.dp),
-            onClick = {
-                if (!answered[questionIndex]) {
-                    fieldBoolean.value = index
-                    answered[questionIndex] = true
-                    interview.addVote(questionIndex, index)
-                    Log.d("DUBUGMSG", answered.toString())
-                }
-            },
-            shape = RoundedCornerShape(10.dp),
-            backgroundColor = color.value,
-            indication = rememberRipple(color = Color.Green)
-        )
-        {
+            !answered[questionIndex],
+            RoundedCornerShape(10.dp),
+            color.value,
+            contentColorFor(backgroundColor), null, 1.dp, remember { MutableInteractionSource() }) {
             Row(
                 Modifier.padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
-                Text(interview.getAnswerInBlock(questionIndex, index), modifier = Modifier.weight(0.8f), color = Color.White)
                 Text(
-                    if (answered[questionIndex]) "${interview.voteInAnswerPercent(questionIndex, index)}%" else "",
+                    interview.getAnswerInBlock(questionIndex, index),
+                    modifier = Modifier.weight(0.8f),
+                    color = Color.White
+                )
+                Text(
+                    if (answered[questionIndex]) "${
+                        interview.voteInAnswerPercent(
+                            questionIndex,
+                            index
+                        )
+                    }%" else "",
                     modifier = Modifier.weight(0.2f),
                     color = Color.White
                 )

@@ -82,6 +82,27 @@
                 android:name="android.app.lib_name"
                 android:value="" />
         </activity>
+        <activity
+            android:name=".interactive.activity.TextWithMissingActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TagCloud">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity><activity
+            android:name=".interactive.activity.ComparisonListActivity"
+            android:configChanges="orientation"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.TagCloud">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
 
     </application>
 

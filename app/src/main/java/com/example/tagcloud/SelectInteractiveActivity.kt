@@ -19,8 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.tagcloud.interactive.activity.ComparisonListActivity
 import com.example.tagcloud.interactive.activity.QuizActivity
 import com.example.tagcloud.interactive.activity.StarsActivity
+import com.example.tagcloud.interactive.activity.TextWithMissingActivity
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.example.tagcloud.ui.theme.fontFamily
 
@@ -59,13 +61,13 @@ class SelectInteractiveActivity : ComponentActivity() {
                         ToInteractiveButton(QuizActivity::class.java, "Многоступенчатые опросы")
                     }
                     item {
-                        ToInteractiveButton(StarsActivity::class.java, "Сопоставление элементов")
+                        ToInteractiveButton(ComparisonListActivity::class.java, "Сопоставление элементов")
                     }
                     item {
                         ToInteractiveButton(StarsActivity::class.java, "Перетаскивание вариантов в пропуски")
                     }
                     item {
-                        ToInteractiveButton(StarsActivity::class.java, "Заполнение пропуска")
+                        ToInteractiveButton(TextWithMissingActivity::class.java, "Заполнение пропуска")
                     }
                     item {
                         ToInteractiveButton(StarsActivity::class.java, "Оценка статьи")
