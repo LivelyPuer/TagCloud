@@ -2,6 +2,7 @@ package com.example.tagcloud.interactive.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,7 +11,7 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -31,20 +32,27 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tagcloud.HomeActivity
 import com.example.tagcloud.SelectInteractiveActivity
 import com.example.tagcloud.TagsActivity
 import com.example.tagcloud.elements.ComparisonListElement
+import com.example.tagcloud.interactive.DragTarget
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.example.tagcloud.ui.theme.fontFamily
+import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.*
+import kotlin.math.roundToInt
 
 class ComparisonListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +62,7 @@ class ComparisonListActivity : ComponentActivity() {
         }
     }
 
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+    @SuppressLint("UnusedMaterialScaffoldPaddingParameter", "CoroutineCreationDuringComposition")
     @Preview
     @Composable
     fun Main() {
@@ -77,17 +85,28 @@ class ComparisonListActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
                     val scrollState = rememberScrollState()
+                    val endReached by remember {
+                        derivedStateOf {
+                            scrollState.value == scrollState.maxValue
+                        }
+                    }
+                    var n by remember {
+                        mutableStateOf(5)
+                    }
+                    if (endReached){
+                        n += 5
+                    }
                     Column(Modifier.verticalScroll(scrollState)) {
                         val data = ComparisonListElement(
                             "Арабские - Римские",
                             listOf("Один", "Два", "Три", "Четыре"),
                             listOf("I", "II", "III", "IV")
                         )
-                        Comparison(data)
-                        Comparison(data)
-                        Comparison(data)
-                        Comparison(data)
 
+                        for (i in 1..n){
+                            Comparison(data)
+
+                        }
                     }
                 }
             }

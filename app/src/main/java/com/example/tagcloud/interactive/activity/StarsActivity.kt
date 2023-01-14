@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.tagcloud.R
+import com.example.tagcloud.interactive.BaseContainer
 import com.example.tagcloud.shape.StarShape
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.pz64.shape.RoundedStarShape
@@ -47,45 +48,25 @@ class StarsActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
-        TagCloudTheme {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            finish()
-                        },
-                        backgroundColor = MaterialTheme.colors.primary,
-                    ) {
-                        Icon(Icons.Filled.Home, contentDescription = "Home")
-                    }
-                },
-                // Defaults to false
-                isFloatingActionButtonDocked = true
+        BaseContainer(onClickFloatingAction = { finish() }) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
+                Text(text = "Оцените статью", color = MaterialTheme.colors.primary)
+                Row(
+                    modifier = Modifier.fillMaxHeight(),
+
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(text = "Оцените статью", color = MaterialTheme.colors.primary)
-                        Row(
-                            modifier = Modifier.fillMaxHeight(),
-
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            StarGroup()
-                        }
-                    }
-
+                    StarGroup()
                 }
             }
 
         }
     }
+
 
     @Composable
     fun StarGroup() {

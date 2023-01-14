@@ -47,6 +47,7 @@ import com.example.tagcloud.TagsActivity
 import com.example.tagcloud.elements.SimpleText
 import com.example.tagcloud.elements.TextMissing
 import com.example.tagcloud.elements.TextWithMissingElement
+import com.example.tagcloud.interactive.BaseContainer
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.example.tagcloud.ui.theme.fontFamily
 import com.google.accompanist.flowlayout.FlowRow
@@ -62,34 +63,13 @@ class TextWithMissingActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
-        TagCloudTheme {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            finish()
-                        },
-                        backgroundColor = MaterialTheme.colors.primary,
-                    ) {
-                        Icon(Icons.Filled.Home, contentDescription = "Home")
-                    }
-                },
-                // Defaults to false
-                isFloatingActionButtonDocked = true
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    val data = TextWithMissingElement(
-                        "Пропуски",
-                        "Текст {{}} несколькими пропусками {{}} вариантами.",
-                        listOf("с", "и")
-                    )
-                    TextWithMissing(data)
-                }
-            }
-
+        BaseContainer(onClickFloatingAction = { finish() }) {
+            val data = TextWithMissingElement(
+                "Пропуски",
+                "Текст {{}} несколькими пропусками {{}} вариантами.",
+                listOf("с", "и")
+            )
+            TextWithMissing(data)
         }
     }
 

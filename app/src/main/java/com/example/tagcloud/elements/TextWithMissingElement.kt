@@ -8,9 +8,9 @@ class TextWithMissingElement(
     val missings: List<String>
 ) {
     var content: ArrayList<TextForMissing> = ArrayList()
+    var countmissings = 0
 
     init {
-        var countmissings = 0
         for (elem in mask.split(" ")) {
             if (elem == "{{}}") {
                 if (countmissings > missings.size) {

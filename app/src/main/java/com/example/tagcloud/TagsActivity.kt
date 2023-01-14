@@ -16,6 +16,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -76,7 +79,7 @@ class TagsActivity : ComponentActivity() {
     }
 
     @RequiresApi(Build.VERSION_CODES.R)
-    @SuppressLint("MutableCollectionMutableState")
+    @SuppressLint("MutableCollectionMutableState", "UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
         var isNotContinue by remember { mutableStateOf(false) }
@@ -91,94 +94,109 @@ class TagsActivity : ComponentActivity() {
             mutableStateOf(tags)
         }
         TagCloudTheme {
-            // A surface container using the 'background' color from the theme
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colors.background
+            val context = LocalContext.current
+            Scaffold(
+                floatingActionButton = {
+                    FloatingActionButton(
+                        onClick = {startActivity(Intent(context, StartActivity::class.java))
+                                  finish()},
+                        backgroundColor = MaterialTheme.colors.primary
+                    ) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Home")
+                    }
+                },
+                // Defaults to false
+                isFloatingActionButtonDocked = true
             ) {
-                LazyColumn(Modifier.fillMaxHeight()) {
-                    item {
-                        UpperView()
-                    }
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateContentSize(
-                                    animationSpec = spring(
-                                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                                        stiffness = Spring.StiffnessLow
-                                    )
-                                )
-                        ) {
-                            TagsView(isAnyRem = isAnyRem, animated = isNotContinue)
-                        }
-
-                    }
-                }
-                Column(
-                    Modifier
-                        .fillMaxHeight()
-                        .padding(bottom = 10.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Bottom
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colors.background
                 ) {
-                    if (isAnyRem.value) {
-                        Button(
-                            onClick = {
-                                if (isNotContinue) {
-                                    isNotContinue = false
-                                    Timer().schedule(object : TimerTask() {
-                                        override fun run() {
-                                            val intent = Intent(context, HomeActivity::class.java)
-                                            intent.putExtra("first", true)
-                                            startActivity(intent)
-                                        }
-                                    }, 2000)
-                                }
+                    LazyColumn(Modifier.fillMaxHeight()) {
+                        item {
+                            UpperView()
+                        }
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateContentSize(
+                                        animationSpec = spring(
+                                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                                            stiffness = Spring.StiffnessLow
+                                        )
+                                    )
+                            ) {
+                                TagsView(isAnyRem = isAnyRem, animated = isNotContinue)
+                            }
 
-                            },
-                            modifier = Modifier.size(300.dp, 50.dp),
-                            shape = RoundedCornerShape(30.dp)
-                        ) {
-                            Text(
-                                text = "Продолжить",
-                                color = MaterialTheme.colors.secondary,
-                                fontFamily = fontFamily,
-                                fontWeight = FontWeight.ExtraBold
-                            )
                         }
                     }
+                    Column(
+                        Modifier
+                            .fillMaxHeight()
+                            .padding(bottom = 10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Bottom
+                    ) {
+                        if (isAnyRem.value) {
+                            Button(
+                                onClick = {
+                                    if (isNotContinue) {
+                                        isNotContinue = false
+                                        Timer().schedule(object : TimerTask() {
+                                            override fun run() {
+                                                val intent =
+                                                    Intent(context, HomeActivity::class.java)
+                                                intent.putExtra("first", true)
+                                                startActivity(intent)
+                                            }
+                                        }, 2000)
+                                    }
 
-                }
-
-                if (!isNotContinue) {
-                    Log.d("DUBUGMSG", "END")
-                    for (tag in positions.value.keys) {
-                        if (tagsBoolean.value[tag] == true) {
-                            var offsetY =
-                                remember { Animatable(initialValue = positions.value[tag]!!.y.toFloat()) }
-
-                            LaunchedEffect(isAnyRem) {
-                                offsetY.animateTo(
-                                    targetValue = if (isAnyRem.value) 400f else positions.value[tag]!!.y.toFloat(),
-                                    animationSpec = tween(durationMillis = 5000),
+                                },
+                                modifier = Modifier.size(300.dp, 50.dp),
+                                shape = RoundedCornerShape(30.dp)
+                            ) {
+                                Text(
+                                    text = "Продолжить",
+                                    color = MaterialTheme.colors.secondary,
+                                    fontFamily = fontFamily,
+                                    fontWeight = FontWeight.ExtraBold
                                 )
                             }
-                            Popup(offset = positions.value[tag]!!) {
-                                OutlinedButton(
-                                    onClick = { /*TODO*/ },
-                                    Modifier
-                                        .scale(1.05f),
-                                    shape = RoundedCornerShape(20.dp),
-                                    colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.primary)
-                                ) {
-                                    Text(
-                                        text = tag,
-                                        color = MaterialTheme.colors.secondary
+                        }
+
+                    }
+
+                    if (!isNotContinue) {
+                        Log.d("DUBUGMSG", "END")
+                        for (tag in positions.value.keys) {
+                            if (tagsBoolean.value[tag] == true) {
+                                var offsetY =
+                                    remember { Animatable(initialValue = positions.value[tag]!!.y.toFloat()) }
+
+                                LaunchedEffect(isAnyRem) {
+                                    offsetY.animateTo(
+                                        targetValue = if (isAnyRem.value) 400f else positions.value[tag]!!.y.toFloat(),
+                                        animationSpec = tween(durationMillis = 5000),
                                     )
                                 }
+                                Popup(offset = positions.value[tag]!!) {
+                                    OutlinedButton(
+                                        onClick = { /*TODO*/ },
+                                        Modifier
+                                            .scale(1.05f),
+                                        shape = RoundedCornerShape(20.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = MaterialTheme.colors.primary)
+                                    ) {
+                                        Text(
+                                            text = tag,
+                                            color = MaterialTheme.colors.secondary
+                                        )
+                                    }
 
+                                }
                             }
                         }
                     }

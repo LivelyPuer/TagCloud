@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tagcloud.elements.InterviewData
+import com.example.tagcloud.interactive.BaseContainer
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import java.util.*
 
@@ -48,58 +49,39 @@ class QuizActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
-        TagCloudTheme {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            finish()
-                        },
-                        backgroundColor = MaterialTheme.colors.primary,
-                    ) {
-                        Icon(Icons.Filled.Home, contentDescription = "Home")
-                    }
-                },
-                // Defaults to false
-                isFloatingActionButtonDocked = true
+        BaseContainer(onClickFloatingAction = { finish() }) {
+            LazyColumn(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(start = 30.dp, end = 30.dp)
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colors.background
-                ) {
-                    LazyColumn(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(start = 30.dp, end = 30.dp)
-                    ) {
-                        item {
-                            Interview(
-                                InterviewData(
-                                    "Топ опрос 1", listOf(
-                                        Pair(
-                                            "Вопрос 1",
-                                            listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
-                                        ),
-                                        Pair("Вопрос 2", listOf("Ответ 1", "Ответ 2", "Ответ 3")),
-                                        Pair("Вопрос 3", listOf("Ответ 1", "Ответ 2")),
-                                        Pair(
-                                            "Вопрос 4",
-                                            listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
-                                        ),
-                                    ), mutableListOf(
-                                        mutableListOf(1, 2, 3, 4),
-                                        mutableListOf(1, 2, 3),
-                                        mutableListOf(1, 2),
-                                        mutableListOf(1, 2, 3, 4),
-                                    )
-                                )
+                item {
+                    Interview(
+                        InterviewData(
+                            "Топ опрос 1", listOf(
+                                Pair(
+                                    "Вопрос 1",
+                                    listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
+                                ),
+                                Pair("Вопрос 2", listOf("Ответ 1", "Ответ 2", "Ответ 3")),
+                                Pair("Вопрос 3", listOf("Ответ 1", "Ответ 2")),
+                                Pair(
+                                    "Вопрос 4",
+                                    listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
+                                ),
+                            ), mutableListOf(
+                                mutableListOf(1, 2, 3, 4),
+                                mutableListOf(1, 2, 3),
+                                mutableListOf(1, 2),
+                                mutableListOf(1, 2, 3, 4),
                             )
-                        }
-                    }
+                        )
+                    )
                 }
             }
         }
     }
+
 
     @SuppressLint("MutableCollectionMutableState")
     @Composable
@@ -127,7 +109,8 @@ class QuizActivity : ComponentActivity() {
                     )
                 }
                 val answers = remember {
-                    BooleanArray(interview.getCountQuestions()).toMutableList().toMutableStateList()
+                    BooleanArray(interview.getCountQuestions()).toMutableList()
+                        .toMutableStateList()
                 }
 
                 for (j in 0 until interview.getCountQuestions()) {
@@ -149,7 +132,10 @@ class QuizActivity : ComponentActivity() {
                                 interview
                             )
                         }
-                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Row(
+                            Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
                             Text(
                                 "Ответили ${interview.sumVote(j)} чел.",
                                 fontSize = 12.sp,
@@ -200,7 +186,10 @@ class QuizActivity : ComponentActivity() {
             !answered[questionIndex],
             RoundedCornerShape(10.dp),
             color.value,
-            contentColorFor(backgroundColor), null, 1.dp, remember { MutableInteractionSource() }) {
+            contentColorFor(backgroundColor),
+            null,
+            1.dp,
+            remember { MutableInteractionSource() }) {
             Row(
                 Modifier.padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -229,7 +218,11 @@ class QuizActivity : ComponentActivity() {
 
     @Composable
     fun CustomProgressBar(
-        modifier: Modifier, width: Dp, backgroundColor: Color, foregroundColor: Brush, percent: Int,
+        modifier: Modifier,
+        width: Dp,
+        backgroundColor: Color,
+        foregroundColor: Brush,
+        percent: Int,
         isShownText: Boolean
     ) {
         Box(
