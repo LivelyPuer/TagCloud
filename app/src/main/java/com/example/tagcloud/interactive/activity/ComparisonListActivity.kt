@@ -9,12 +9,11 @@ import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -77,78 +76,83 @@ class ComparisonListActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
                 ) {
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        val isSubmitted = remember {
-                            mutableStateOf(false)
-                        }
+                    val scrollState = rememberScrollState()
+                    Column(Modifier.verticalScroll(scrollState)) {
                         val data = ComparisonListElement(
                             "Арабские - Римские",
-                            listOf("Один", "Два", "Три", "Четыре"), listOf("I", "II", "III", "IV")
+                            listOf("Один", "Два", "Три", "Четыре"),
+                            listOf("I", "II", "III", "IV")
                         )
-                        val tasks = remember {
-                            BooleanArray(data.first.size).toMutableList().toMutableStateList()
-                        }
-                        Text(
-                            data.title,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colors.primary
-                        )
-                        Text(
-                            text = "Сопоставьте две колонки перетаскивая элементы правой ",
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                            color = Color.Gray
-                        )
-                        Row(
-                            modifier = Modifier.padding(start = 20.dp, top = 10.dp, bottom = 5.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
+                        Comparison(data)
+                        Comparison(data)
+                        Comparison(data)
+                        Comparison(data)
 
-
-                            VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
-                            VerticalReorderList(Modifier.weight(0.5f), data, tasks, isSubmitted)
-                            Spacer(modifier = Modifier.size(10.dp))
-                        }
-                        val number =
-                            if (isSubmitted.value) "Верно ${tasks.count { it }}/${tasks.size}" else " "
-                        Text(number, fontSize = 12.sp, color = Color.Gray)
-                        Spacer(modifier = Modifier.size(5.dp))
-                        Button(
-                            onClick = {
-                                isSubmitted.value = true
-                            },
-                            modifier = Modifier.size(300.dp, 50.dp),
-                            colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                            border = BorderStroke(4.dp, MaterialTheme.colors.primary),
-                            shape = RoundedCornerShape(30.dp)
-                        ) {
-                            Text(
-                                text = "Подтвердить",
-                                color = MaterialTheme.colors.primary,
-                                fontFamily = fontFamily,
-                                fontWeight = FontWeight.Medium
-                            )
-                        }
                     }
                 }
             }
         }
-
     }
 
     @Composable
-    fun ExtendedFloatingActionButtonDemo() {
-        ExtendedFloatingActionButton(
-            icon = { Icon(Icons.Filled.Favorite, "") },
-            text = { Text("FloatingActionButton") },
-            onClick = { /*do something*/ },
-            elevation = FloatingActionButtonDefaults.elevation(8.dp)
-        )
+    fun Comparison(data: ComparisonListElement) {
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            val isSubmitted = remember {
+                mutableStateOf(false)
+            }
+
+            val tasks = remember {
+                BooleanArray(data.first.size).toMutableList().toMutableStateList()
+            }
+            Text(
+                data.title,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colors.primary
+            )
+            Text(
+                text = "Сопоставьте две колонки перетаскивая элементы правой ",
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                color = Color.Gray
+            )
+            Row(
+                modifier = Modifier.padding(
+                    start = 20.dp, top = 10.dp, bottom = 5.dp
+                ), horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+
+
+                VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+//                                    VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+                VerticalReorderList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+                Spacer(modifier = Modifier.size(10.dp))
+            }
+            val number =
+                if (isSubmitted.value) "Верно ${tasks.count { it }}/${tasks.size}" else " "
+            Text(number, fontSize = 12.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.size(5.dp))
+            Button(
+                onClick = {
+                    isSubmitted.value = true
+                },
+                modifier = Modifier.size(300.dp, 50.dp),
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                border = BorderStroke(4.dp, MaterialTheme.colors.primary),
+                shape = RoundedCornerShape(30.dp)
+            ) {
+                Text(
+                    text = "Подтвердить",
+                    color = MaterialTheme.colors.primary,
+                    fontFamily = fontFamily,
+                    fontWeight = FontWeight.Medium
+                )
+            }
+        }
     }
 
     @Composable
@@ -159,11 +163,10 @@ class ComparisonListActivity : ComponentActivity() {
         isSubmitted: MutableState<Boolean>,
     ) {
         val data = dataElements.first
-        LazyColumn(
+        Column(
             modifier = modifier, verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-
-            items(data, { it }) { item ->
+            for (item in data) {
                 var scale = remember { Animatable(initialValue = 1f) }
                 Card(
                     modifier = Modifier
@@ -206,7 +209,8 @@ class ComparisonListActivity : ComponentActivity() {
             state = state.listState,
             modifier = modifier
                 .reorderable(state)
-                .detectReorderAfterLongPress(state),
+                .detectReorderAfterLongPress(state)
+                .height(60.dp * dataElements.first.size - 10.dp),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(data.value, { it }) { item ->
