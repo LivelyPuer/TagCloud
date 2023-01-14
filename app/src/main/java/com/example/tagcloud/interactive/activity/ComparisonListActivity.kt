@@ -47,6 +47,7 @@ import com.example.tagcloud.HomeActivity
 import com.example.tagcloud.SelectInteractiveActivity
 import com.example.tagcloud.TagsActivity
 import com.example.tagcloud.elements.ComparisonListElement
+import com.example.tagcloud.interactive.BaseContainer
 import com.example.tagcloud.interactive.DragTarget
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.example.tagcloud.ui.theme.fontFamily
@@ -66,48 +67,32 @@ class ComparisonListActivity : ComponentActivity() {
     @Preview
     @Composable
     fun Main() {
-        TagCloudTheme {
-            Scaffold(
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            finish()
-                        },
-                        backgroundColor = MaterialTheme.colors.primary,
-                    ) {
-                        Icon(Icons.Filled.Home, contentDescription = "Home")
-                    }
-                },
-                // Defaults to false
-                isFloatingActionButtonDocked = true
-            ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background
-                ) {
-                    val scrollState = rememberScrollState()
-                    val endReached by remember {
-                        derivedStateOf {
-                            scrollState.value == scrollState.maxValue
-                        }
-                    }
-                    var n by remember {
-                        mutableStateOf(5)
-                    }
-                    if (endReached){
-                        n += 5
-                    }
-                    Column(Modifier.verticalScroll(scrollState)) {
-                        val data = ComparisonListElement(
-                            "Арабские - Римские",
-                            listOf("Один", "Два", "Три", "Четыре"),
-                            listOf("I", "II", "III", "IV")
-                        )
+        BaseContainer(onClickFloatingAction = { finish() }, color = Color.LightGray) {
+            val scrollState = rememberScrollState()
+            val endReached by remember {
+                derivedStateOf {
+                    scrollState.value == scrollState.maxValue
+                }
+            }
+            var n by remember {
+                mutableStateOf(5)
+            }
+            if (endReached) {
+                n += 5
+            }
+            Column(
+                Modifier
+                    .verticalScroll(scrollState)
+                    .background(Color.LightGray)) {
+                val data = ComparisonListElement(
+                    "Арабские - Римские",
+                    listOf("Один", "Два", "Три", "Четыре"),
+                    listOf("I", "II", "III", "IV")
+                )
 
-                        for (i in 1..n){
-                            Comparison(data)
+                for (i in 1..n) {
+                    Comparison(data)
 
-                        }
-                    }
                 }
             }
         }
@@ -115,61 +100,69 @@ class ComparisonListActivity : ComponentActivity() {
 
     @Composable
     fun Comparison(data: ComparisonListElement) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Card(
+            modifier = Modifier
+                .padding(5.dp),
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            elevation = 2.dp,
         ) {
-
-            val isSubmitted = remember {
-                mutableStateOf(false)
-            }
-
-            val tasks = remember {
-                BooleanArray(data.first.size).toMutableList().toMutableStateList()
-            }
-            Text(
-                data.title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colors.primary
-            )
-            Text(
-                text = "Сопоставьте две колонки перетаскивая элементы правой ",
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
-            Row(
-                modifier = Modifier.padding(
-                    start = 20.dp, top = 10.dp, bottom = 5.dp
-                ), horizontalArrangement = Arrangement.spacedBy(10.dp)
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                val isSubmitted = remember {
+                    mutableStateOf(false)
+                }
 
-                VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
-//                                    VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
-                VerticalReorderList(Modifier.weight(0.5f), data, tasks, isSubmitted)
-                Spacer(modifier = Modifier.size(10.dp))
-            }
-            val number =
-                if (isSubmitted.value) "Верно ${tasks.count { it }}/${tasks.size}" else " "
-            Text(number, fontSize = 12.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.size(5.dp))
-            Button(
-                onClick = {
-                    isSubmitted.value = true
-                },
-                modifier = Modifier.size(300.dp, 50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                border = BorderStroke(4.dp, MaterialTheme.colors.primary),
-                shape = RoundedCornerShape(30.dp)
-            ) {
+                val tasks = remember {
+                    BooleanArray(data.first.size).toMutableList().toMutableStateList()
+                }
                 Text(
-                    text = "Подтвердить",
-                    color = MaterialTheme.colors.primary,
-                    fontFamily = fontFamily,
-                    fontWeight = FontWeight.Medium
+                    data.title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colors.primary
                 )
+                Text(
+                    text = "Сопоставьте две колонки перетаскивая элементы правой ",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray
+                )
+                Row(
+                    modifier = Modifier.padding(
+                        start = 20.dp, top = 10.dp, bottom = 5.dp
+                    ), horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
+
+                    VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+//                                    VerticalStaticList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+                    VerticalReorderList(Modifier.weight(0.5f), data, tasks, isSubmitted)
+                    Spacer(modifier = Modifier.size(10.dp))
+                }
+                val number =
+                    if (isSubmitted.value) "Верно ${tasks.count { it }}/${tasks.size}" else " "
+                Text(number, fontSize = 12.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.size(5.dp))
+                Button(
+                    onClick = {
+                        isSubmitted.value = true
+                    },
+                    modifier = Modifier.size(300.dp, 50.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    border = BorderStroke(4.dp, MaterialTheme.colors.primary),
+                    shape = RoundedCornerShape(30.dp)
+                ) {
+                    Text(
+                        text = "Подтвердить",
+                        color = MaterialTheme.colors.primary,
+                        fontFamily = fontFamily,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
     }

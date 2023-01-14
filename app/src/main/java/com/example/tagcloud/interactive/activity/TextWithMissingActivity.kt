@@ -10,6 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
@@ -63,73 +64,102 @@ class TextWithMissingActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun Main() {
-        BaseContainer(onClickFloatingAction = { finish() }) {
+        BaseContainer(color = Color.LightGray, onClickFloatingAction = { finish() }) {
             val data = TextWithMissingElement(
                 "Пропуски",
                 "Текст {{}} несколькими пропусками {{}} вариантами.",
                 listOf("с", "и")
             )
-            TextWithMissing(data)
+            val scrollState = rememberScrollState()
+            val endReached by remember {
+                derivedStateOf {
+                    scrollState.value == scrollState.maxValue
+                }
+            }
+            var n by remember {
+                mutableStateOf(5)
+            }
+            if (endReached) {
+                n += 5
+            }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .background(Color.LightGray)
+                    .verticalScroll(scrollState)) {
+                for (i in 1..n) {
+                    TextWithMissing(data)
+                }
+            }
         }
     }
 
     @Composable
     fun TextWithMissing(data: TextWithMissingElement) {
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+        Card(
+            modifier = Modifier
+                .padding(5.dp),
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            elevation = 2.dp,
         ) {
-            val isSubmitted = remember {
-                mutableStateOf(false)
-            }
-            Text(
-                data.title,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = MaterialTheme.colors.primary
-            )
-            Text(
-                text = "Впишите пропущенные слова",
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-                color = Color.Gray
-            )
-            FlowRow(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 5.dp),
-                mainAxisSpacing = 10.dp,
+                    .padding(5.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                val isSubmitted = remember {
+                    mutableStateOf(false)
+                }
+                Text(
+                    data.title,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    color = MaterialTheme.colors.primary
+                )
+                Text(
+                    text = "Впишите пропущенные слова",
+                    fontSize = 14.sp,
+                    textAlign = TextAlign.Center,
+                    color = Color.Gray
+                )
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 5.dp),
+                    mainAxisSpacing = 10.dp,
+                ) {
 
-                for (elem in data.content) {
-                    when (elem) {
-                        is TextMissing -> {
-                            MissingText(text = elem.text, size = elem.size, isSubmitted)
-                        }
-                        is SimpleText -> {
-                            SimpleText(text = elem.text)
+                    for (elem in data.content) {
+                        when (elem) {
+                            is TextMissing -> {
+                                MissingText(text = elem.text, size = elem.size, isSubmitted)
+                            }
+                            is SimpleText -> {
+                                SimpleText(text = elem.text)
+                            }
                         }
                     }
                 }
-            }
-            Button(
-                onClick = {
-                    isSubmitted.value = true
-                },
-                modifier = Modifier.size(300.dp, 50.dp),
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
-                border = BorderStroke(4.dp, MaterialTheme.colors.primary),
-                shape = RoundedCornerShape(30.dp)
-            ) {
-                Text(
-                    text = "Подтвердить",
-                    color = MaterialTheme.colors.primary,
-                    fontFamily = fontFamily,
-                    fontWeight = FontWeight.Medium
-                )
+                Button(
+                    onClick = {
+                        isSubmitted.value = true
+                    },
+                    modifier = Modifier.size(300.dp, 50.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    border = BorderStroke(4.dp, MaterialTheme.colors.primary),
+                    shape = RoundedCornerShape(30.dp)
+                ) {
+                    Text(
+                        text = "Подтвердить",
+                        color = MaterialTheme.colors.primary,
+                        fontFamily = fontFamily,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
             }
         }
-
     }
 
     @Composable

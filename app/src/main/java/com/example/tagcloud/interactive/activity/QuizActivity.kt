@@ -16,7 +16,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.SnackbarDefaults.backgroundColor
 import androidx.compose.material.icons.Icons
@@ -50,15 +52,28 @@ class QuizActivity : ComponentActivity() {
     @Composable
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }) {
-            LazyColumn(
+            val scrollState = rememberScrollState()
+            val endReached by remember {
+                derivedStateOf {
+                    scrollState.value == scrollState.maxValue
+                }
+            }
+            var n by remember {
+                mutableStateOf(5)
+            }
+            if (endReached) {
+                n += 5
+            }
+            Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(start = 30.dp, end = 30.dp)
+                    .verticalScroll(scrollState)
+                    .background(Color.LightGray)
             ) {
-                item {
+                for (i in 1..n) {
                     Interview(
                         InterviewData(
-                            "Топ опрос 1", listOf(
+                            "Топ опрос $i", listOf(
                                 Pair(
                                     "Вопрос 1",
                                     listOf("Ответ 1", "Ответ 2", "Ответ 3", "Ответ 4")
@@ -78,6 +93,7 @@ class QuizActivity : ComponentActivity() {
                         )
                     )
                 }
+
             }
         }
     }
@@ -86,67 +102,75 @@ class QuizActivity : ComponentActivity() {
     @SuppressLint("MutableCollectionMutableState")
     @Composable
     fun Interview(interview: InterviewData) {
-        Surface(
-            Modifier
-                .fillMaxWidth()
-                .animateContentSize(
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
-                    )
-                ),
-            shape = RoundedCornerShape(10.dp),
-            color = Color(0xFFF5F5F5)
-        )
-        {
-            Column(Modifier.padding(top = 10.dp, start = 5.dp, end = 5.dp)) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    Text(
-                        interview.title,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colors.primary
-                    )
-                }
-                val answers = remember {
-                    BooleanArray(interview.getCountQuestions()).toMutableList()
-                        .toMutableStateList()
-                }
+        Card(
+            modifier = Modifier
+                .padding(5.dp),
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            elevation = 2.dp,
+        ) {
+            Surface(
+                Modifier
+                    .fillMaxWidth()
+                    .animateContentSize(
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessLow
+                        )
+                    ),
+                shape = RoundedCornerShape(10.dp),
+                color = Color(0xFFF5F5F5)
+            )
+            {
+                Column(Modifier.padding(top = 10.dp, start = 5.dp, end = 5.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Text(
+                            interview.title,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colors.primary
+                        )
+                    }
+                    val answers = remember {
+                        BooleanArray(interview.getCountQuestions()).toMutableList()
+                            .toMutableStateList()
+                    }
 
-                for (j in 0 until interview.getCountQuestions()) {
-                    Log.d("DUBUGMSG", answers.toString())
-                    if (j == 0 || answers[j - 1]) {
-                        val number = "Вопрос " + (j + 1) + "/" + interview.getCountQuestions()
-                        Text(number, fontSize = 12.sp, color = Color.Gray)
-                        interview.getTitle(j)?.let { Text(it) }
+                    for (j in 0 until interview.getCountQuestions()) {
+                        Log.d("DUBUGMSG", answers.toString())
+                        if (j == 0 || answers[j - 1]) {
+                            val number = "Вопрос " + (j + 1) + "/" + interview.getCountQuestions()
+                            Text(number, fontSize = 12.sp, color = Color.Gray)
+                            interview.getTitle(j)?.let { Text(it) }
 
-                        val selectedField = remember {
-                            mutableStateOf(-1)
+                            val selectedField = remember {
+                                mutableStateOf(-1)
+                            }
+                            for (i in 0 until interview.getCountInBlock(j)) {
+                                Field(
+                                    i,
+                                    j,
+                                    selectedField,
+                                    answers,
+                                    interview
+                                )
+                            }
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    "Ответили ${interview.sumVote(j)} чел.",
+                                    fontSize = 12.sp,
+                                    color = Color.Gray
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
                         }
-                        for (i in 0 until interview.getCountInBlock(j)) {
-                            Field(
-                                i,
-                                j,
-                                selectedField,
-                                answers,
-                                interview
-                            )
-                        }
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Text(
-                                "Ответили ${interview.sumVote(j)} чел.",
-                                fontSize = 12.sp,
-                                color = Color.Gray
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(20.dp))
+
                     }
 
                 }
-
             }
         }
 

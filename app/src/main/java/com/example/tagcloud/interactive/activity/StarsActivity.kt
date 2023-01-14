@@ -11,6 +11,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -49,8 +52,46 @@ class StarsActivity : ComponentActivity() {
     @Composable
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }) {
+            val scrollState = rememberScrollState()
+            val endReached by remember {
+                derivedStateOf {
+                    scrollState.value == scrollState.maxValue
+                }
+            }
+            var n by remember {
+                mutableStateOf(5)
+            }
+            if (endReached) {
+                n += 5
+            }
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .background(Color.LightGray),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                for (i in 1..n) {
+                    Rate()
+                }
+            }
+
+        }
+    }
+
+    @Composable
+    fun Rate() {
+        Card(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+                .height(50.dp),
+            backgroundColor = Color.White,
+            shape = RoundedCornerShape(20.dp),
+            elevation = 2.dp,
+        ) {
+            Column(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -66,7 +107,6 @@ class StarsActivity : ComponentActivity() {
 
         }
     }
-
 
     @Composable
     fun StarGroup() {

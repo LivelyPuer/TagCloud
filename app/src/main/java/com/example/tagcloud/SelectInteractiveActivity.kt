@@ -58,16 +58,28 @@ class SelectInteractiveActivity : ComponentActivity() {
                         ToInteractiveButton(QuizActivity::class.java, "Многоступенчатые опросы")
                     }
                     item {
-                        ToInteractiveButton(ComparisonListActivity::class.java, "Сопоставление элементов")
+                        ToInteractiveButton(
+                            ComparisonListActivity::class.java,
+                            "Сопоставление элементов"
+                        )
                     }
                     item {
-                        ToInteractiveButton(DragNDropMissingTextActivity::class.java, "Перетаскивание вариантов в пропуски")
+                        ToInteractiveButton(
+                            DragNDropMissingTextActivity::class.java,
+                            "Перетаскивание вариантов в пропуски"
+                        )
                     }
                     item {
-                        ToInteractiveButton(TextWithMissingActivity::class.java, "Заполнение пропуска")
+                        ToInteractiveButton(
+                            TextWithMissingActivity::class.java,
+                            "Заполнение пропуска"
+                        )
                     }
                     item {
                         ToInteractiveButton(StarsActivity::class.java, "Оценка статьи")
+                    }
+                    item {
+                        ToInteractiveButton(LikeActivity::class.java, "Поставить лайк или дизлайк")
                     }
                 }
             }
@@ -75,7 +87,7 @@ class SelectInteractiveActivity : ComponentActivity() {
     }
 
     @Composable
-    fun ToInteractiveButton(cls: Class<*>?, text: String){
+    fun ToInteractiveButton(cls: Class<*>?, text: String) {
         val context = LocalContext.current
 
         Button(

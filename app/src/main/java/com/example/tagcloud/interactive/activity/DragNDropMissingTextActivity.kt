@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -65,21 +62,40 @@ class DragNDropMissingTextActivity : ComponentActivity() {
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }, color = Color.LightGray) {
             LongPressDraggable(modifier = Modifier.fillMaxSize()) {
-                LazyColumn(Modifier.background(color = Color.LightGray)) {
+                val scrollState = rememberScrollState()
+                val endReached by remember {
+                    derivedStateOf {
+                        scrollState.value == scrollState.maxValue
+                    }
+                }
+                var n by remember {
+                    mutableStateOf(5)
+                }
+                if (endReached) {
+                    n += 5
+                }
+                Column(
+                    Modifier
+                        .verticalScroll(scrollState)
+                        .background(color = Color.LightGray)
+                ) {
                     val tel = TextWithMissingElement(
                         "Пропуски",
                         "Текст {{}} несколькими {{}} и вариантами.",
                         listOf("с", "пропусками")
                     )
-                    val memory = mutableMapOf<Int, SnapshotStateList<String>>()
-                    val answered = mutableMapOf<Int, Boolean>()
-                    items(Int.MAX_VALUE) { item ->
+                    for (i in 1..n) {
                         val data = DragNDropTextWithMissingElement(
                             tel,
-                            listOf(Variant("с"), Variant("пропусками"), Variant("и"), Variant("вариантами")),
-                            item
+                            listOf(
+                                Variant("с"),
+                                Variant("пропусками"),
+                                Variant("и"),
+                                Variant("вариантами")
+                            ),
+                            i
                         )
-                        DnDTextWithMissing(data, memory, answered)
+                        DnDTextWithMissing(data)
                     }
                 }
             }
@@ -90,8 +106,10 @@ class DragNDropMissingTextActivity : ComponentActivity() {
     @Composable
     fun DnDTextWithMissing(
         dragNDropTextWithMissingElement: DragNDropTextWithMissingElement,
-        memory: MutableMap<Int, SnapshotStateList<String>>, answered: MutableMap<Int, Boolean>
     ) {
+        val isSubmitted = remember {
+            mutableStateOf(false)
+        }
         val data = dragNDropTextWithMissingElement.simpleTextMissing
         Card(
             modifier = Modifier
@@ -104,9 +122,6 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val isSubmitted = remember {
-                    mutableStateOf(answered.containsKey(dragNDropTextWithMissingElement.id))
-                }
                 Text(
                     data.title,
                     fontSize = 20.sp,
@@ -135,8 +150,6 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                                     size = elem.size,
                                     isSubmitted,
                                     dragNDropTextWithMissingElement,
-                                    memory,
-                                    answered,
                                     count,
                                 )
                                 count += 1
@@ -186,10 +199,7 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                 }
                 Button(
                     onClick = {
-                        answered[dragNDropTextWithMissingElement.id] = true
-                        if (!memory.containsKey(dragNDropTextWithMissingElement.id))
-                            memory[dragNDropTextWithMissingElement.id] =
-                                MutableList(dragNDropTextWithMissingElement.simpleTextMissing.countmissings) { "" }.toMutableStateList()
+
                         isSubmitted.value = true
                     },
                     modifier = Modifier
@@ -230,27 +240,14 @@ class DragNDropMissingTextActivity : ComponentActivity() {
         size: Int,
         isSubmitted: MutableState<Boolean>,
         dragNDropTextWithMissingElement: DragNDropTextWithMissingElement,
-        memory: MutableMap<Int, SnapshotStateList<String>>,
-        answered: MutableMap<Int, Boolean>,
         numberWord: Int
     ) {
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
 
         var textValue by remember {
-            mutableStateOf(
-                if (answered.containsKey(dragNDropTextWithMissingElement.id)) memory[dragNDropTextWithMissingElement.id]?.get(
-                    numberWord
-                ) else ""
-            )
+            mutableStateOf("")
         }
-        if (answered.containsKey(dragNDropTextWithMissingElement.id)) {
-            Log.d(
-                "DUBUGMSG",
-                dragNDropTextWithMissingElement.id.toString() + " " + numberWord + " " + memory[dragNDropTextWithMissingElement.id]?.get(
-                    numberWord
-                ).toString()
-            )
-        }
+
         var columnWidthPx by remember {
             mutableStateOf(0f)
         }
@@ -258,11 +255,7 @@ class DragNDropMissingTextActivity : ComponentActivity() {
             mutableStateOf(0f)
         }
         var sizeText by remember {
-            mutableStateOf(
-                if (answered.containsKey(dragNDropTextWithMissingElement.id)) memory[dragNDropTextWithMissingElement.id]?.get(
-                    numberWord
-                )?.length else size
-            )
+            mutableStateOf(size)
         }
         DropTarget<Variant>(
             modifier = Modifier
@@ -277,37 +270,20 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                 if (isInBound && dragNDropTextWithMissingElement.id == dropText.id) {
                     textValue = dropText.text
                     sizeText = dropText.text.length
-                    if (!memory.containsKey(dragNDropTextWithMissingElement.id)) {
-                        memory[dragNDropTextWithMissingElement.id] =
-                            MutableList(dragNDropTextWithMissingElement.simpleTextMissing.countmissings) { "" }.toMutableStateList()
-                    }
-                    memory[dragNDropTextWithMissingElement.id]?.set(numberWord, textValue!!)
-                    Log.d(
-                        "DUBUGMSG",
-                        dragNDropTextWithMissingElement.id.toString() + " " + numberWord + " " + (memory[dragNDropTextWithMissingElement.id]?.get(
-                            numberWord
-                        ).toString())
-                    )
-                    Log.d(
-                        "DUBUGMSG",
-                        dragNDropTextWithMissingElement.id.toString() + " " + 0 + " " + (memory[dragNDropTextWithMissingElement.id]?.get(
-                            0
-                        ).toString())
-                    )
                 }
             }
             BowForTextMissing {
                 BasicTextField(
                     enabled = false,
                     singleLine = true,
-                    value = textValue!!,
+                    value = textValue,
                     onValueChange = {
-                        if (!isSubmitted.value && it.length <= sizeText!!) textValue = it
+                        if (!isSubmitted.value && it.length <= sizeText) textValue = it
 
                     },
                     onTextLayout = { layout = it },
                     modifier = Modifier
-                        .width((sizeText!! * 11).dp)
+                        .width((sizeText * 11).dp)
                         .onGloballyPositioned { coordinates ->
                             // Set column height using the LayoutCoordinates
                             columnWidthPx = coordinates.size.width.toFloat()
