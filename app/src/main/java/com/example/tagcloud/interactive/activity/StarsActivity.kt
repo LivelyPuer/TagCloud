@@ -8,12 +8,12 @@ import android.widget.MultiAutoCompleteTextView
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -24,6 +24,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.tagcloud.R
 import com.example.tagcloud.interactive.BaseContainer
 import com.example.tagcloud.shape.StarShape
@@ -86,7 +89,7 @@ class StarsActivity : ComponentActivity() {
             modifier = Modifier
                 .padding(5.dp)
                 .fillMaxWidth()
-                .height(50.dp),
+                .height(60.dp),
             backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
@@ -122,19 +125,25 @@ class StarsActivity : ComponentActivity() {
     @Composable
     fun Star(index: Int, rate: MutableState<Int>) {
 
-        Surface(
-            onClick = {
-                rate.value = index
-            },
-            shape = roundedStarShape
-        ) {
-            Box(
+        val progress = remember { Animatable(initialValue = 0f) }
+        val selected = index <= rate.value
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.star_fav_animation))
+        LaunchedEffect(selected) {
+            progress.animateTo(
+                targetValue = if (selected) 0.6f else 0.2f,
+                animationSpec = tween(durationMillis = 1000 + 100 * index),
+            )
+        }
+        Box(Modifier.size(width = 40.dp, height = 60.dp)) {
+            LottieAnimation(
                 modifier = Modifier
-                    .background(
-                        color = if (index <= rate.value) Color(0xFFFD8B27) else
-                            Color(0xFFD1D1D1)
-                    )
-                    .size(40.dp),
+                    .fillMaxSize()
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                    ) { rate.value = index },
+                composition = composition,
+                progress = { progress.value }
             )
         }
     }

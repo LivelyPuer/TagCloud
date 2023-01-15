@@ -5,42 +5,37 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.MainThread
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.SnackbarDefaults.backgroundColor
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.tagcloud.elements.InterviewData
 import com.example.tagcloud.interactive.BaseContainer
-import com.example.tagcloud.ui.theme.TagCloudTheme
 import java.util.*
 
 class QuizActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -52,6 +47,7 @@ class QuizActivity : ComponentActivity() {
     @Composable
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }) {
+            val dark = isSystemInDarkTheme()
             val scrollState = rememberScrollState()
             val endReached by remember {
                 derivedStateOf {
@@ -68,7 +64,7 @@ class QuizActivity : ComponentActivity() {
                 Modifier
                     .fillMaxWidth()
                     .verticalScroll(scrollState)
-                    .background(Color.LightGray)
+                    .background(if (dark) MaterialTheme.colors.background else Color.LightGray)
             ) {
                 for (i in 1..n) {
                     Interview(
@@ -105,7 +101,7 @@ class QuizActivity : ComponentActivity() {
         Card(
             modifier = Modifier
                 .padding(5.dp),
-            backgroundColor = Color.White,
+            backgroundColor = MaterialTheme.colors.background,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
@@ -119,7 +115,6 @@ class QuizActivity : ComponentActivity() {
                         )
                     ),
                 shape = RoundedCornerShape(10.dp),
-                color = Color(0xFFF5F5F5)
             )
             {
                 Column(Modifier.padding(top = 10.dp, start = 5.dp, end = 5.dp)) {
@@ -140,8 +135,11 @@ class QuizActivity : ComponentActivity() {
                         Log.d("DUBUGMSG", answers.toString())
                         if (j == 0 || answers[j - 1]) {
                             val number = "Вопрос " + (j + 1) + "/" + interview.getCountQuestions()
-                            Text(number, fontSize = 12.sp, color = Color.Gray)
-                            interview.getTitle(j)?.let { Text(it) }
+                            Text(
+                                number,
+                                fontSize = 12.sp,
+                                color = Color.Gray
+                            )
 
                             val selectedField = remember {
                                 mutableStateOf(-1)
@@ -186,34 +184,43 @@ class QuizActivity : ComponentActivity() {
         interview: InterviewData
 
     ) {
-        val color = remember { Animatable(Color(0xFFE0E0E0)) }
+        val dark = isSystemInDarkTheme()
+
+        val startColor = if (dark) MaterialTheme.colors.background else Color(
+            0xFFE0E0E0
+        )
+        val color = remember { Animatable(startColor) }
         LaunchedEffect(index == fieldBoolean.value) {
             color.animateTo(
-                targetValue = if (index == fieldBoolean.value) Color(0xFF8BC34A) else Color(
-                    0xFFE0E0E0
-                ),
+                targetValue = if (index == fieldBoolean.value) Color(0xFF8BC34A) else startColor,
                 animationSpec = tween(500)
             )
         }
         rememberRipple(color = Color.Green)
-        Card({
-            if (!answered[questionIndex]) {
-                fieldBoolean.value = index
-                answered[questionIndex] = true
-                interview.addVote(questionIndex, index)
-                Log.d("DUBUGMSG", answered.toString())
-            }
-        },
-            Modifier
+        val progress = remember { androidx.compose.animation.core.Animatable(0f) }
+        LaunchedEffect(answered[questionIndex]) {
+            progress.animateTo(
+                targetValue = if (answered[questionIndex]) interview.voteInAnswerPercent(questionIndex, index)
+                    .toFloat() else 0f,
+                animationSpec = tween(durationMillis = 1000),
+            )
+        }
+        CustomProgressBar(
+            onClick = {
+                if (!answered[questionIndex]) {
+                    fieldBoolean.value = index
+                    answered[questionIndex] = true
+                    interview.addVote(questionIndex, index)
+                    Log.d("DUBUGMSG", answered.toString())
+                }
+            },
+            modifier = Modifier
                 .fillMaxWidth()
-                .defaultMinSize(minHeight = 40.dp),
-            !answered[questionIndex],
-            RoundedCornerShape(10.dp),
-            color.value,
-            contentColorFor(backgroundColor),
-            null,
-            1.dp,
-            remember { MutableInteractionSource() }) {
+                .height(45.dp),
+            backgroundColor = startColor,
+            foregroundColor = if (answered[questionIndex]) if (fieldBoolean.value == index) Color(0xFF8BC34A) else Color.Gray else Color(0xFF8BC34A),
+            percent = progress.value.toInt()
+        ) {
             Row(
                 Modifier.padding(start = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -235,30 +242,46 @@ class QuizActivity : ComponentActivity() {
                     color = Color.White
                 )
             }
-
         }
-
     }
 
     @Composable
     fun CustomProgressBar(
+        onClick: () -> Unit = {},
         modifier: Modifier,
-        width: Dp,
         backgroundColor: Color,
-        foregroundColor: Brush,
+        foregroundColor: Color,
         percent: Int,
-        isShownText: Boolean
+        content: @Composable () -> Unit
     ) {
         Box(
-            modifier = modifier
-                .background(backgroundColor)
-                .width(width)
+            modifier = modifier.padding(5.dp)
         ) {
-            Box(
-                modifier = modifier
-                    .background(foregroundColor)
-                    .width(width * percent / 100)
-            )
+            Surface(modifier = modifier
+                .clip(RoundedCornerShape(10.dp))
+                .clickable() { onClick() }) {
+                var columnWidthDp by remember {
+                    mutableStateOf(0.dp)
+                }
+                val localDensity = LocalDensity.current
+                Row(
+                    modifier = modifier
+                        .background(backgroundColor)
+                        .onGloballyPositioned { coordinates ->
+                            columnWidthDp = with(localDensity) { coordinates.size.width.toDp() }
+                        }
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .background(foregroundColor)
+                            .fillMaxHeight()
+                            .width(columnWidthDp * (percent / 100f))
+                    ) {
+                    }
+                }
+                content()
+            }
+
         }
     }
 }

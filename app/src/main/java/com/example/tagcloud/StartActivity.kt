@@ -22,10 +22,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
@@ -107,6 +107,7 @@ class StartActivity : ComponentActivity() {
                         fontSize = 17.sp,
                         text = "Самые персонализированные и интерактивные новости",
                         fontFamily = fontFamily,
+                        textAlign = TextAlign.Center,
                         fontWeight = FontWeight.ExtraBold
                     )
                     Button(

@@ -140,8 +140,8 @@ class LikeActivity : ComponentActivity() {
             val progress = remember { Animatable(initialValue = 0f) }
             LaunchedEffect(liked) {
                 progress.animateTo(
-                    targetValue = if (liked) 1f else 0f,
-                    animationSpec = tween(durationMillis = 3000),
+                    targetValue = if (liked) 1f else 0.4f,
+                    animationSpec = tween(durationMillis = 1000),
                 )
             }
             LottieAnimation(

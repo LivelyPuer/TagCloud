@@ -1,7 +1,5 @@
 package com.example.tagcloud
 
-import android.content.ComponentName
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -34,7 +32,6 @@ class SelectInteractiveActivity : ComponentActivity() {
 
     @Composable
     fun Main() {
-        val context = LocalContext.current
         TagCloudTheme {
             Surface(
                 modifier = Modifier.fillMaxSize(),
@@ -47,13 +44,6 @@ class SelectInteractiveActivity : ComponentActivity() {
                     verticalArrangement = Arrangement.SpaceBetween,
                     contentPadding = PaddingValues(top = 50.dp, bottom = 50.dp)
                 ) {
-
-//                    Spacer(
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(20.dp)
-//                    )
-
                     item {
                         ToInteractiveButton(QuizActivity::class.java, "Многоступенчатые опросы")
                     }
