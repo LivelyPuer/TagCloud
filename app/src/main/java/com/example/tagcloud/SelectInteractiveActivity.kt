@@ -79,7 +79,7 @@ class SelectInteractiveActivity : ComponentActivity() {
                         ToInteractiveButton(StarsActivity::class.java, "Оценка статьи")
                     }
                     item {
-                        ToInteractiveButton(LikeActivity::class.java, "Поставить лайк или дизлайк")
+                        ToInteractiveButton(LikeActivity::class.java, "Поставить лайк и поделиться")
                     }
                 }
             }

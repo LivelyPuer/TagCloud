@@ -25,6 +25,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.tagcloud.ui.theme.TagCloudTheme
 import com.example.tagcloud.ui.theme.fontFamily
 
@@ -49,6 +53,9 @@ class StartActivity : ComponentActivity() {
                 modifier = Modifier.fillMaxSize(),
                 color = MaterialTheme.colors.background
             ) {
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.start))
+                val progress by animateLottieCompositionAsState(composition)
+
                 LaunchedEffect(animated) {
                     scale.animateTo(
                         targetValue = if (animated) 0.7f else 0f,
@@ -74,6 +81,7 @@ class StartActivity : ComponentActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+
                     val image: Painter = painterResource(id = R.drawable.news)
                     Image(modifier = Modifier
                         .graphicsLayer { rotationY = rotation.value }
@@ -97,7 +105,7 @@ class StartActivity : ComponentActivity() {
                             .offset(y = (-200).dp),
                         color = MaterialTheme.colors.primary,
                         fontSize = 17.sp,
-                        text = "Самые персонализированные новости",
+                        text = "Самые персонализированные и интерактивные новости",
                         fontFamily = fontFamily,
                         fontWeight = FontWeight.ExtraBold
                     )
