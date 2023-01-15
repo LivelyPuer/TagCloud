@@ -62,6 +62,7 @@ class DragNDropMissingTextActivity : ComponentActivity() {
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }, color = Color.LightGray) {
             LongPressDraggable(modifier = Modifier.fillMaxSize()) {
+                val dark = isSystemInDarkTheme()
                 val scrollState = rememberScrollState()
                 val endReached by remember {
                     derivedStateOf {
@@ -77,7 +78,8 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                 Column(
                     Modifier
                         .verticalScroll(scrollState)
-                        .background(color = Color.LightGray)
+                        .background(if (dark) MaterialTheme.colors.background else Color.LightGray)
+
                 ) {
                     val tel = TextWithMissingElement(
                         "Пропуски",
@@ -110,11 +112,11 @@ class DragNDropMissingTextActivity : ComponentActivity() {
         val isSubmitted = remember {
             mutableStateOf(false)
         }
+        val dark = isSystemInDarkTheme()
         val data = dragNDropTextWithMissingElement.simpleTextMissing
         Card(
             modifier = Modifier
                 .padding(5.dp),
-            backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
@@ -141,7 +143,6 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                         .padding(5.dp),
                     mainAxisSpacing = 10.dp,
                 ) {
-                    var count = 0
                     for (elem in data.content) {
                         when (elem) {
                             is TextMissing -> {
@@ -150,9 +151,7 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                                     size = elem.size,
                                     isSubmitted,
                                     dragNDropTextWithMissingElement,
-                                    count,
                                 )
-                                count += 1
                             }
                             is SimpleText -> {
                                 SimpleText(text = elem.text)
@@ -176,7 +175,10 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                                 border = BorderStroke(2.dp, MaterialTheme.colors.primary)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text(variant.text)
+                                    Text(
+                                        variant.text,
+                                        color = if (dark) Color.LightGray else Color.DarkGray
+                                    )
                                 }
                             }
                         } else {
@@ -190,7 +192,10 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                                     border = BorderStroke(2.dp, MaterialTheme.colors.primary)
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Text(variant.text)
+                                        Text(
+                                            variant.text,
+                                            color = if (dark) Color.LightGray else Color.DarkGray
+                                        )
                                     }
                                 }
                             }
@@ -205,7 +210,8 @@ class DragNDropMissingTextActivity : ComponentActivity() {
                     modifier = Modifier
                         .size(300.dp, 50.dp)
                         .padding(bottom = 10.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (dark) MaterialTheme.colors.onBackground else Color.White),
                     border = BorderStroke(4.dp, MaterialTheme.colors.primary),
                     shape = RoundedCornerShape(30.dp)
                 ) {
@@ -229,8 +235,12 @@ class DragNDropMissingTextActivity : ComponentActivity() {
 
     @Composable
     fun SimpleText(text: String) {
+        val dark = isSystemInDarkTheme()
         BowForTextMissing {
-            Text(text, textAlign = TextAlign.Center, fontSize = 20.sp)
+            Text(
+                text, textAlign = TextAlign.Center, fontSize = 20.sp,
+                color = if (dark) Color.LightGray else Color.DarkGray
+            )
         }
     }
 
@@ -240,10 +250,8 @@ class DragNDropMissingTextActivity : ComponentActivity() {
         size: Int,
         isSubmitted: MutableState<Boolean>,
         dragNDropTextWithMissingElement: DragNDropTextWithMissingElement,
-        numberWord: Int
     ) {
         var layout by remember { mutableStateOf<TextLayoutResult?>(null) }
-
         var textValue by remember {
             mutableStateOf("")
         }

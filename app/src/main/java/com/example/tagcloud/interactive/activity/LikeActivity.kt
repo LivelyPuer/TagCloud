@@ -2,6 +2,7 @@ package com.example.tagcloud.interactive.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.drawable.PaintDrawable
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -12,17 +13,16 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.airbnb.lottie.compose.*
 import com.example.tagcloud.R
 import com.example.tagcloud.interactive.BaseContainer
@@ -56,7 +56,7 @@ class LikeActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .background(Color.LightGray),
+                    .background(if (isSystemInDarkTheme()) MaterialTheme.colors.background else Color.LightGray),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -74,13 +74,50 @@ class LikeActivity : ComponentActivity() {
                 .padding(5.dp)
                 .fillMaxWidth()
                 .height(50.dp),
-            backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
-            Row(horizontalArrangement = Arrangement.Start) {
-                Like()
-                Share()
+            Row(horizontalArrangement = Arrangement.SpaceAround) {
+                Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                    Row() {
+                        Box(
+                            Modifier
+                                .height(50.dp), contentAlignment = Alignment.CenterStart
+                        ) {
+                            if (isSystemInDarkTheme()){
+                                Image(
+                                    modifier = Modifier.size(20.dp),
+                                    painter = painterResource(id = R.drawable.eyedt),
+                                    contentDescription = ""
+                                )
+                            }else{
+                                Image(
+                                    modifier = Modifier.size(20.dp),
+                                    painter = painterResource(id = R.drawable.eye1),
+                                    contentDescription = ""
+                                )
+                            }
+
+                        }
+                        Spacer(modifier = Modifier.width(3.dp))
+                        val watches = (1..999).random()
+                        Box(
+                            Modifier
+                                .height(50.dp), contentAlignment = Alignment.CenterStart
+                        ) {
+                            Text(
+                                text = watches.toString(),
+                                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+                            )
+                        }
+                    }
+
+                }
+
+                Row(Modifier.width(150.dp)) {
+                    Like()
+                    Share()
+                }
             }
         }
     }
@@ -121,8 +158,12 @@ class LikeActivity : ComponentActivity() {
         Box(
             Modifier
                 .height(50.dp)
-                .width(30.dp), contentAlignment = Alignment.CenterStart) {
-            Text(text = count.value.toString())
+                .width(30.dp), contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = count.value.toString(),
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+            )
         }
     }
 
@@ -150,14 +191,18 @@ class LikeActivity : ComponentActivity() {
                     indication = null,
                 ) { liked = !liked },
                 composition = composition,
-                progress = {progress.value}
+                progress = { progress.value }
             )
         }
         Box(
             Modifier
                 .height(50.dp)
-                .width(30.dp), contentAlignment = Alignment.CenterStart) {
-            Text(text = (count.value + if (liked) 1 else 0).toString())
+                .width(30.dp), contentAlignment = Alignment.CenterStart
+        ) {
+            Text(
+                text = (count.value + if (liked) 1 else 0).toString(),
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+            )
         }
     }
 }

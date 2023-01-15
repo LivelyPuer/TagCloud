@@ -101,7 +101,6 @@ class QuizActivity : ComponentActivity() {
         Card(
             modifier = Modifier
                 .padding(5.dp),
-            backgroundColor = MaterialTheme.colors.background,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
@@ -174,7 +173,6 @@ class QuizActivity : ComponentActivity() {
 
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Field(
         index: Int,

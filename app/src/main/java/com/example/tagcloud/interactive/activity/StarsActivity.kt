@@ -55,6 +55,7 @@ class StarsActivity : ComponentActivity() {
     @Composable
     fun Main() {
         BaseContainer(onClickFloatingAction = { finish() }) {
+            val dark = isSystemInDarkTheme()
             val scrollState = rememberScrollState()
             val endReached by remember {
                 derivedStateOf {
@@ -71,7 +72,7 @@ class StarsActivity : ComponentActivity() {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
-                    .background(Color.LightGray),
+                    .background(if (dark) MaterialTheme.colors.background else Color.LightGray),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -90,7 +91,6 @@ class StarsActivity : ComponentActivity() {
                 .padding(5.dp)
                 .fillMaxWidth()
                 .height(60.dp),
-            backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
@@ -121,7 +121,6 @@ class StarsActivity : ComponentActivity() {
         Star(5, rate)
     }
 
-    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun Star(index: Int, rate: MutableState<Int>) {
 

@@ -65,6 +65,7 @@ class TextWithMissingActivity : ComponentActivity() {
     @Composable
     fun Main() {
         BaseContainer(color = Color.LightGray, onClickFloatingAction = { finish() }) {
+            val dark = isSystemInDarkTheme()
             val data = TextWithMissingElement(
                 "Пропуски",
                 "Текст {{}} несколькими пропусками {{}} вариантами.",
@@ -85,7 +86,7 @@ class TextWithMissingActivity : ComponentActivity() {
             Column(
                 Modifier
                     .fillMaxSize()
-                    .background(Color.LightGray)
+                    .background(if (dark) MaterialTheme.colors.background else Color.LightGray)
                     .verticalScroll(scrollState)) {
                 for (i in 1..n) {
                     TextWithMissing(data)
@@ -99,7 +100,6 @@ class TextWithMissingActivity : ComponentActivity() {
         Card(
             modifier = Modifier
                 .padding(5.dp),
-            backgroundColor = Color.White,
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
@@ -147,7 +147,8 @@ class TextWithMissingActivity : ComponentActivity() {
                         isSubmitted.value = true
                     },
                     modifier = Modifier.size(300.dp, 50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (isSystemInDarkTheme()) MaterialTheme.colors.onBackground else Color.White),
                     border = BorderStroke(4.dp, MaterialTheme.colors.primary),
                     shape = RoundedCornerShape(30.dp)
                 ) {
@@ -172,7 +173,9 @@ class TextWithMissingActivity : ComponentActivity() {
     @Composable
     fun SimpleText(text: String) {
         BowForTextMissing {
-            Text(text, textAlign = TextAlign.Center, fontSize = 20.sp)
+            Text(text, textAlign = TextAlign.Center, fontSize = 20.sp,
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+            )
         }
     }
 

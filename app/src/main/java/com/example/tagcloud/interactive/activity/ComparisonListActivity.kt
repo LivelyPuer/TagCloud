@@ -67,7 +67,9 @@ class ComparisonListActivity : ComponentActivity() {
     @Preview
     @Composable
     fun Main() {
-        BaseContainer(onClickFloatingAction = { finish() }, color = Color.LightGray) {
+        BaseContainer(onClickFloatingAction = { finish() }) {
+            val dark = isSystemInDarkTheme()
+
             val scrollState = rememberScrollState()
             val endReached by remember {
                 derivedStateOf {
@@ -83,14 +85,16 @@ class ComparisonListActivity : ComponentActivity() {
             Column(
                 Modifier
                     .verticalScroll(scrollState)
-                    .background(Color.LightGray)) {
-                val data = ComparisonListElement(
-                    "Арабские - Римские",
-                    listOf("Один", "Два", "Три", "Четыре"),
-                    listOf("I", "II", "III", "IV")
-                )
+                    .background(if (dark) MaterialTheme.colors.background else Color.LightGray)
+            ) {
+
 
                 for (i in 1..n) {
+                    val data = ComparisonListElement(
+                        "Арабские - Римские",
+                        listOf("Один", "Два", "Три", "Четыре"),
+                        listOf("I", "II", "III", "IV")
+                    )
                     Comparison(data)
 
                 }
@@ -100,15 +104,16 @@ class ComparisonListActivity : ComponentActivity() {
 
     @Composable
     fun Comparison(data: ComparisonListElement) {
+        val dark = isSystemInDarkTheme()
         Card(
-            modifier = Modifier
-                .padding(5.dp),
-            backgroundColor = Color.White,
+            modifier = Modifier.padding(5.dp),
             shape = RoundedCornerShape(20.dp),
             elevation = 2.dp,
         ) {
             Column(
-                modifier = Modifier.fillMaxWidth().padding(5.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
@@ -152,7 +157,8 @@ class ComparisonListActivity : ComponentActivity() {
                         isSubmitted.value = true
                     },
                     modifier = Modifier.size(300.dp, 50.dp),
-                    colors = ButtonDefaults.buttonColors(backgroundColor = Color.White),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = if (dark) MaterialTheme.colors.onBackground else Color.White),
                     border = BorderStroke(4.dp, MaterialTheme.colors.primary),
                     shape = RoundedCornerShape(30.dp)
                 ) {
